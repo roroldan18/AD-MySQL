@@ -141,6 +141,8 @@ public class GestionBD {
     public void eliminarContacto(Contacto contacto) {
         Connection conexion = conectar();
         try{
+            // TODO: agregar el registro a la tabla de "ultimos eliminados"
+
             PreparedStatement ps = conexion.prepareStatement("DELETE FROM contactos WHERE id = ?");
             ps.setString(1, Integer.toString(contacto.getId()));
             int row = ps.executeUpdate();
