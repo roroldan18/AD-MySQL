@@ -138,11 +138,64 @@ public class GestionBD {
 
     }
 
+    private void insertUltimoEliminado(Contacto contacto){
+        Connection conexion = conectar();
+        try{
+            // Agrego en la tabla de ultimos eliminados
+            String sqlInsert = "INSERT INTO ultimo_registro_eliminado (id_nombre, nombre, apellido, email, telefono, fecha_eliminacion) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement statement = conexion.prepareStatement(sqlInsert);
+            statement.setString(1, Integer.toString(contacto.getId()));
+            statement.setString(2, contacto.getNombre());
+            statement.setString(3, contacto.getApellido());
+            statement.setString(4, contacto.getEmail());
+            statement.setString(5, Integer.toString(contacto.getTelefono()));
+            statement.setTimestamp(6, new java.sql.Timestamp(System.currentTimeMillis()));
+            int rowInsert = statement.executeUpdate();
+
+            if(rowInsert > 0){
+                System.out.println("Contacto agregado a la tabla de ultimos eliminados");
+            } else {
+                System.out.println("No se pudo agregar el contacto a la tabla de ultimos eliminados");
+            }
+        } catch (Exception e){
+            System.out.println("Error al insertar en la tabla de ultimos eliminados");
+            e.printStackTrace();
+        }
+        finally {
+            desconectar(conexion);
+        }
+    }
+
+    public void recuperarUltimoEliminado(){
+        Connection conexion = conectar();
+        try{
+            String sql = "SELECT * FROM ultimo_registro_eliminado ORDER BY fecha_eliminacion DESC LIMIT 1";
+            Statement statement = conexion.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            if(resultSet.next()){
+                int id = resultSet.getInt("id_nombre");
+                String nombre = resultSet.getString("nombre");
+                String apellido = resultSet.getString("apellido");
+                String email = resultSet.getString("email");
+                int telefono = resultSet.getInt("telefono");
+                Contacto contacto = new Contacto(id, nombre, apellido, telefono, email);
+                agregarContacto(contacto);
+            } else {
+                System.out.println("No hay contactos eliminados");
+            }
+        } catch (Exception e){
+            System.out.println("Error al eliminar el contacto");
+            e.printStackTrace();
+        }
+    }
+
     public void eliminarContacto(Contacto contacto) {
         Connection conexion = conectar();
         try{
-            // TODO: agregar el registro a la tabla de "ultimos eliminados"
+            insertUltimoEliminado(contacto); // Inserto en la tabla de ultimos eliminados
 
+            // Elimino de la tabla de contactos
             PreparedStatement ps = conexion.prepareStatement("DELETE FROM contactos WHERE id = ?");
             ps.setString(1, Integer.toString(contacto.getId()));
             int row = ps.executeUpdate();
@@ -177,6 +230,35 @@ public class GestionBD {
             }
         } catch (Exception e ){
             System.out.println("Error al filtrar contactos");
+            e.printStackTrace();
+        }
+        finally {
+            desconectar(conexion);
+        }
+    }
+
+    public void eliminarTodosLosDatos() {
+        Connection conexion = conectar();
+        try{
+            // Elimino de la tabla de contactos
+            PreparedStatement ps = conexion.prepareStatement("DELETE FROM contactos");
+            int row = ps.executeUpdate();
+            if(row > 0){
+                System.out.println("Contactos eliminados");
+            } else {
+                System.out.println("No se pudieron eliminar los contactos");
+            }
+
+            // Elimino de la tabla de ultimos eliminados
+            PreparedStatement ps2 = conexion.prepareStatement("DELETE FROM ultimo_registro_eliminado");
+            int row2 = ps2.executeUpdate();
+            if(row2 > 0){
+                System.out.println("Ultimos eliminados eliminados");
+            } else {
+                System.out.println("No se pudieron eliminar los ultimos eliminados");
+            }
+        } catch (Exception e){
+            System.out.println("Error al eliminar los contactos");
             e.printStackTrace();
         }
         finally {

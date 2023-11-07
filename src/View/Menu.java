@@ -17,6 +17,8 @@ public class Menu {
             System.out.println("4. Editar contacto");
             System.out.println("5. Eliminar contacto");
             System.out.println("6. Filtrar contactos");
+            System.out.println("7. Recuperar último eliminado");
+            System.out.println("8. Eliminar todos los datos del programa");
             System.out.println("0. Salir");
             System.out.println("Ingrese una opción: ");
             opcion = Integer.parseInt(sc.nextLine());
@@ -39,6 +41,12 @@ public class Menu {
                 case 6:
                     mostrarFiltrar();
                     break;
+                case 7:
+                    mostrarRecuperar();
+                    break;
+                case 8:
+                    mostrarEliminarTodo();
+                    break;
                 case 0:
                     System.out.println("Hasta pronto...");
                     break;
@@ -46,6 +54,32 @@ public class Menu {
                     System.out.println("Opción inválida");
                     break;
             }
+        }
+    }
+
+    private static void mostrarEliminarTodo() {
+        System.out.println("------------ Eliminar todos los datos del programa ------------");
+        System.out.println("Desea eliminar todos los datos del programa? Esta operación no puede revertirse (S/N)");
+        String respuesta = sc.nextLine();
+        if(respuesta.equals("S")){
+            // Llamo al controller
+            GestionBD gestionBD = new GestionBD();
+            gestionBD.eliminarTodosLosDatos();
+        } else {
+            System.out.println("No se eliminaron todos los datos del programa");
+        }
+    }
+
+    private static void mostrarRecuperar() {
+        System.out.println("------------ Recuperar último eliminado ------------");
+        System.out.println("Desea recuperar el último contacto eliminado? (S/N)");
+        String respuesta = sc.nextLine();
+        if(respuesta.equals("S")){
+            // Llamo al controller
+            GestionBD gestionBD = new GestionBD();
+            gestionBD.recuperarUltimoEliminado();
+        } else {
+            System.out.println("No se recuperó el último contacto eliminado");
         }
     }
 
